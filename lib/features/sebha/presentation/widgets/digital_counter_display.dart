@@ -7,49 +7,36 @@ class DigitalCounterDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final screenWidth = MediaQuery.of(context).size.width;
-
-    final height = (screenWidth * 0.22).clamp(70.0, 95.0);
-    final fontSize = (screenWidth * 0.12).clamp(32.0, 48.0);
+    final height = (screenWidth * 0.18).clamp(55.0, 75.0);
+    final fontSize = (screenWidth * 0.1).clamp(28.0, 42.0);
 
     return Container(
       height: height,
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: isDark
-              ? [const Color(0xFF1A2A1A), const Color(0xFF0D1A0D)]
-              : [const Color(0xFF2A3A2A), const Color(0xFF1A2A1A)],
-        ),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: isDark ? Colors.grey.shade800 : Colors.grey.shade700,
-          width: 2,
-        ),
+        color: const Color(0xFFE8E8E8),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color.fromARGB(255, 0, 0, 0), width: 5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+            spreadRadius: -1,
+          ),
+        ],
       ),
       child: Center(
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: 150),
-          transitionBuilder: (child, animation) {
-            return FadeTransition(opacity: animation, child: child);
-          },
           child: Text(
-            count.toString().padLeft(4, '0'),
+            '$count',
             key: ValueKey(count),
             style: TextStyle(
               fontSize: fontSize,
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF00FF41),
+              color: const Color(0xFF1A1A1A),
               fontFamily: 'monospace',
-              letterSpacing: fontSize * 0.1,
-              shadows: [
-                Shadow(
-                  color: const Color(0xFF00FF41).withOpacity(0.8),
-                  blurRadius: 12,
-                ),
-              ],
             ),
           ),
         ),

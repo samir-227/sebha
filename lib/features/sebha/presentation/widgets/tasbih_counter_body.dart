@@ -1,301 +1,192 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../../../core/theme/app_colors.dart';
 import 'digital_counter_display.dart';
+import '../../../../core/theme/app_colors.dart';
 
 class TasbihCounterBody extends StatefulWidget {
   final int count;
   final VoidCallback onIncrement;
+  final VoidCallback onReset;
 
   const TasbihCounterBody({
     super.key,
     required this.count,
     required this.onIncrement,
+    required this.onReset,
   });
 
   @override
   State<TasbihCounterBody> createState() => _TasbihCounterBodyState();
 }
 
-class _TasbihCounterBodyState extends State<TasbihCounterBody>
-    with SingleTickerProviderStateMixin {
+class _TasbihCounterBodyState extends State<TasbihCounterBody> {
   bool _isPressed = false;
-  late AnimationController _pulseController;
-  late Animation<double> _pulseAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 100),
-    );
-    _pulseAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _pulseController.dispose();
-    super.dispose();
-  }
 
   void _handleTapDown() {
     setState(() => _isPressed = true);
-    _pulseController.forward();
     HapticFeedback.lightImpact();
   }
 
   void _handleTapUp() {
     setState(() => _isPressed = false);
-    _pulseController.reverse();
     widget.onIncrement();
   }
 
   void _handleTapCancel() {
     setState(() => _isPressed = false);
-    _pulseController.reverse();
   }
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final screenWidth = MediaQuery.of(context).size.width;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
 
-    final deviceWidth = (screenWidth * 0.5).clamp(200.0, 280.0);
-    final deviceHeight = deviceWidth * 1.5;
-    final borderRadius = deviceWidth * 0.4;
+    final deviceWidth = (screenWidth * 0.52).clamp(180.0, 260.0);
+    final deviceHeight = deviceWidth * 1.35;
+    final borderRadius = deviceWidth * 0.42;
 
-    final topPadding = deviceHeight * 0.12;
-    final sidePadding = deviceWidth * 0.1;
-    final bottomPadding = deviceHeight * 0.12;
-    final buttonSize = deviceWidth * 0.5;
+    final buttonSize = deviceWidth * 0.48;
 
-    final casingGradient = isDark
-        ? [const Color(0xFF2D2D2D), const Color(0xFF1A1A1A)]
-        : [const Color(0xFFE8C896), const Color(0xFFD4A574)];
+    // ✅ ألوان مختلفة حسب الثيم
+    final Color primaryColor;
+    final Color darkColor;
+    final Color lightColor;
+    final Color borderColor;
 
-    final casingBorder = isDark
-        ? const Color(0xFF404040)
-        : const Color(0xFFBF8A50);
+    if (isDark) {
+      // ألوان الدارك مود - بنفسجي/رمادي معدني
+      primaryColor = const Color(0xFF5D4E6D);
+      lightColor = const Color(0xFF7D6E8D);
+      darkColor = const Color(0xFF3D2E4D);
+      borderColor = const Color(0xFF2D1E3D);
+    } else {
+      // ألوان اللايت مود - من secondary color
+      primaryColor = colorScheme.secondary;
+      final hslColor = HSLColor.fromColor(primaryColor);
+      darkColor = hslColor
+          .withLightness((hslColor.lightness - 0.15).clamp(0.0, 1.0))
+          .toColor();
+      lightColor = hslColor
+          .withLightness((hslColor.lightness + 0.1).clamp(0.0, 1.0))
+          .toColor();
+      borderColor = hslColor
+          .withLightness((hslColor.lightness - 0.25).clamp(0.0, 1.0))
+          .toColor();
+    }
 
-    return Center(
-      child: AnimatedBuilder(
-        animation: _pulseAnimation,
-        builder: (context, child) {
-          return Transform.scale(
-            scale: _pulseAnimation.value,
-            child: child,
-          );
-        },
-        child: Container(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
           width: deviceWidth,
           height: deviceHeight,
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: casingGradient,
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [lightColor, primaryColor, darkColor],
+              stops: const [0.0, 0.5, 1.0],
             ),
             borderRadius: BorderRadius.circular(borderRadius),
-            border: Border.all(color: casingBorder, width: 3),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(isDark ? 0.5 : 0.3),
-                blurRadius: 30,
-                offset: const Offset(0, 15),
-                spreadRadius: 5,
-              ),
-              BoxShadow(
-                color: Colors.white.withOpacity(isDark ? 0.05 : 0.2),
-                blurRadius: 20,
-                offset: const Offset(-10, -10),
-              ),
-            ],
+            border: Border.all(color: borderColor, width: 2),
+            boxShadow: isDark
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.5),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ]
+                : null,
           ),
           child: Stack(
             children: [
-              // تأثير اللمعان
-              Positioned.fill(
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(borderRadius - 3),
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.center,
-                      colors: [
-                        Colors.white.withOpacity(isDark ? 0.08 : 0.3),
-                        Colors.transparent,
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
-              // ✅ الشاشة - تستخدم widget.count مباشرة
               Positioned(
-                top: topPadding,
-                left: sidePadding,
-                right: sidePadding,
-                child: _buildScreenFrame(
-                  isDark,
-                  DigitalCounterDisplay(count: widget.count), // ✅ هنا الحل
-                ),
+                top: deviceHeight * 0.12,
+                left: deviceWidth * 0.12,
+                right: deviceWidth * 0.12,
+                child: DigitalCounterDisplay(count: widget.count),
               ),
-
-              // زر العد
               Align(
                 alignment: Alignment.bottomCenter,
                 child: Padding(
-                  padding: EdgeInsets.only(bottom: bottomPadding),
+                  padding: EdgeInsets.only(bottom: deviceHeight * 0.1),
                   child: GestureDetector(
                     onTapDown: (_) => _handleTapDown(),
                     onTapUp: (_) => _handleTapUp(),
                     onTapCancel: _handleTapCancel,
-                    child: _buildCountButton(isDark, buttonSize),
+                    child: _buildMainButton(
+                      buttonSize,
+                      borderColor,
+                      primaryColor,
+                      isDark,
+                    ),
                   ),
                 ),
-              ),
-
-              // حلقة التعليق
-              Positioned(
-                top: -deviceWidth * 0.08,
-                left: 0,
-                right: 0,
-                child: _buildRing(isDark, deviceWidth * 0.15),
               ),
             ],
           ),
         ),
-      ),
+      ],
     );
   }
 
-  Widget _buildScreenFrame(bool isDark, Widget display) {
-    return Container(
-      padding: const EdgeInsets.all(6),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1A1A1A) : const Color(0xFF2A2A2A),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: isDark ? Colors.grey.shade700 : Colors.grey.shade600,
-          width: 2,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.4),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-            spreadRadius: -2,
-          ),
-        ],
-      ),
-      child: display,
-    );
-  }
-
-  Widget _buildCountButton(bool isDark, double size) {
-    final pressedOffset = _isPressed ? 2.0 : 0.0;
-
+  Widget _buildMainButton(
+    double size,
+    Color borderColor,
+    Color textColor,
+    bool isDark,
+  ) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 80),
       width: size,
       height: size,
-      transform: Matrix4.translationValues(0, pressedOffset, 0),
+      transform: Matrix4.translationValues(0, _isPressed ? 3 : 0, 0),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         gradient: RadialGradient(
           center: const Alignment(-0.3, -0.3),
-          colors: isDark
+          colors: _isPressed
+              ? isDark
+                    ? [const Color(0xFF3A3A3A), const Color(0xFF2A2A2A)]
+                    : [const Color(0xFFD0D0D0), const Color(0xFFB0B0B0)]
+              : isDark
               ? [
                   const Color(0xFF4A4A4A),
+                  const Color(0xFF3A3A3A),
                   const Color(0xFF2A2A2A),
-                  const Color(0xFF1A1A1A),
                 ]
               : [
-                  const Color(0xFFF0D0A0),
-                  const Color(0xFFD4A574),
-                  const Color(0xFFB8885C),
+                  const Color(0xFFF5F5F5),
+                  const Color(0xFFE0E0E0),
+                  const Color(0xFFCCCCCC),
                 ],
         ),
-        border: Border.all(
-          color: isDark ? Colors.grey.shade600 : const Color(0xFFA06830),
-          width: 3,
-        ),
+        border: Border.all(color: borderColor, width: 3),
         boxShadow: _isPressed
-            ? [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.3),
-                  blurRadius: 5,
-                  offset: const Offset(0, 2),
-                ),
-              ]
+            ? []
             : [
                 BoxShadow(
                   color: Colors.black.withOpacity(isDark ? 0.6 : 0.4),
-                  blurRadius: 15,
-                  offset: const Offset(0, 8),
-                  spreadRadius: 2,
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
                 ),
-                BoxShadow(
-                  color: Colors.white.withOpacity(isDark ? 0.05 : 0.3),
-                  blurRadius: 10,
-                  offset: const Offset(-5, -5),
-                ),
+                if (!isDark)
+                  const BoxShadow(
+                    color: Colors.white,
+                    blurRadius: 4,
+                    offset: Offset(-2, -2),
+                  ),
               ],
       ),
       child: Center(
-        child: Container(
-          width: size * 0.6,
-          height: size * 0.6,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: RadialGradient(
-              colors: isDark
-                  ? [Colors.grey.shade700, Colors.grey.shade800]
-                  : [const Color(0xFFE8C090), const Color(0xFFC49060)],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRing(bool isDark, double size) {
-    return Center(
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: isDark
-                ? [Colors.grey.shade600, Colors.grey.shade800]
-                : [const Color(0xFFD4A574), const Color(0xFF8B6B4A)],
-          ),
-          border: Border.all(
-            color: isDark ? Colors.grey.shade500 : const Color(0xFF6B4B2A),
-            width: 2,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.3),
-              blurRadius: 5,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Center(
-          child: Container(
-            width: size * 0.4,
-            height: size * 0.4,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: isDark ? const Color(0xFF1A1A1A) : const Color(0xFF3A3A3A),
-            ),
+        child: Text(
+          'اضغط',
+          style: TextStyle(
+            fontSize: size * 0.22,
+            fontWeight: FontWeight.bold,
+            color: isDark ? Colors.white70 : textColor,
           ),
         ),
       ),

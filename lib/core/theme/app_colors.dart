@@ -16,6 +16,10 @@ class AppColors {
     0xFF2C2C2C,
   ); // Dark gray for containers/app bar from image
 
+// ✅ ألوان السبحة للدارك مود
+  static const Color darkTasbihPrimary = Color(0xFF5D4E6D);    // بنفسجي داكن
+  static const Color darkTasbihLight = Color(0xFF7D6E8D);      // بنفسجي فاتح
+  static const Color darkTasbihDark = Color(0xFF3D2E4D);       // بنفسجي غامق
   // Tasbih screen background
   static const Color tasbihBackground = Color(0xFFF5F0EB);
 
