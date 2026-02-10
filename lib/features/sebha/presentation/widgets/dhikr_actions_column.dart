@@ -34,8 +34,8 @@ class DhikrActionsColumn extends StatelessWidget {
       );
     }
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(
           width: 90,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// بسيط للتحكم في وضع الثيم (فاتح/داكن) من داخل التطبيق.
+
 class ThemeController extends ChangeNotifier {
   ThemeMode _mode = ThemeMode.system;
 

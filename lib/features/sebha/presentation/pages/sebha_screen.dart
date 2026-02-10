@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sebha/features/sebha/presentation/widgets/social_connection_row.dart';
 
 import '../../../../core/theme/theme_controller.dart';
 import '../state/sebha_cubit.dart';
@@ -122,30 +123,28 @@ class SebhaScreen extends StatelessWidget {
 
           // Top section: dhikr action buttons + tasbih device.
           Expanded(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: sizing.horizontalPadding,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TasbihCounterBody(
-                      count: count,
-                      onIncrement: incrementCounter,
-                      counterDisplay: DigitalCounterDisplay(count: count),
-                    ),
-                    SizedBox(height: sizing.verticalSpacing),
-                    DhikrActionsColumn(
-                      onAddPressed: () => showAddDhikrBottomSheet(context),
-                      onAdhkarPressed: () =>
-                          showDhikrListBottomSheet(context, isAdhkar: true),
-                      onDuaPressed: () =>
-                          showDhikrListBottomSheet(context, isAdhkar: false),
-                    ),
-                  ],
-                ),
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: sizing.horizontalPadding,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  DhikrActionsColumn(
+                    onAddPressed: () => showAddDhikrBottomSheet(context),
+                    onAdhkarPressed: () =>
+                        showDhikrListBottomSheet(context, isAdhkar: true),
+                    onDuaPressed: () =>
+                        showDhikrListBottomSheet(context, isAdhkar: false),
+                  ),
+                  SizedBox(width: sizing.verticalSpacing),
+                  TasbihCounterBody(
+                    count: count,
+                    onIncrement: incrementCounter,
+                    // counterDisplay: DigitalCounterDisplay(count: count),
+                  ),
+                ],
               ),
             ),
           ),
@@ -163,6 +162,9 @@ class SebhaScreen extends StatelessWidget {
             horizontalPadding: sizing.actionButtonPadding,
             isDark: isDark,
           ),
+          SizedBox(height: sizing.verticalSpacing),
+          const SocialConnectionRow(),
+
           SizedBox(height: sizing.bottomPadding),
         ],
       ),
